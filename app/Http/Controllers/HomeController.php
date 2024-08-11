@@ -39,7 +39,6 @@ class HomeController extends Controller
             $category = $this->assignCategory($count);
             $court->count = $count;
             $court->category = $category;
-
         }
         $courts =$courts->sortByDesc('count');
         return view('home',compact('courts'));
@@ -70,10 +69,19 @@ class HomeController extends Controller
         $bookedSlots= DB::table('slot_books')
         ->where('courtID',$courtID)
         ->where('date',$date)->pluck('time')->toArray();
-        // $bookedSlots = json_decode(json_encode($bookedSlots),true);
         return view('slotView',compact('court','date','startTime','endTime','bookedSlots'));
     }
-    public function bookSlotsProcess(Request $request){
+    public function bookSlotsProcessView(Request $request){
+        $courtID = $request->courtID;
+        $date = $request->date;
+        $time = ($request->time);
+        $userID = session('userID');
+        $court= Court::where('courtID',$courtID)->first();
+
+        return view('bookSlotsProcessView',compact('courtID','date','time','userID','court'));
+
+    }
+    public function bookSlotsProcess(request $request){
         $courtID = $request->courtID;
         $date = $request->date;
         $time = ($request->time);
@@ -92,7 +100,8 @@ class HomeController extends Controller
                 'updated_at' => now(),
             ]
             );
-        return back()->with('success','done');
+        return back()->with('success','Your Booking is Confirmed.');
+
     }
     public function getCourts(Request $request,$month,$year){        
 
