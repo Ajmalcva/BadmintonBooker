@@ -57,17 +57,22 @@ class HomeController extends Controller
         }
 
     }
-    private function assignRank($courtID){
-        if($count>=15){
-            return 'A';
-        }elseif($count<15 && $count>=10){
-            return 'B';
+    private function assignRank($courtID,$date){
+        $bookedCounts = DB::table('slot_books')
+        ->select('courtID', DB::raw('COUNT(*) as count'))
+        ->whereYear('date', $date->year)
+        ->whereMonth('date', $date->month)
+        ->groupBy('courtID')
+        ->orderBy('count', 'desc')
+        ->get();
 
-        }elseif($count<10 && $count>=5){
-            return 'C';
-        }else{
-            return 'D';
+        $rankings = [];
+        foreach ($bookedCounts as $index => $booking) {
+            $rankings[$booking->courtID] = $index + 1; 
         }
+
+        return $rankings[$courtID] ?? null; 
+
 
     }
 
@@ -157,10 +162,12 @@ class HomeController extends Controller
                     $detailCourts[$category][] = [
                         'name' => $court->name,
                         'count' => $court->count,
+                        'rank' => $this->assignRank($court->courtID,$date)
                     ];
                 }
             }
         }
+        // dd($detailCourts);
         return view('courtView',compact('detailCourts'));
 
     }
