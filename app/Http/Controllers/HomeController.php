@@ -32,7 +32,8 @@ class HomeController extends Controller
         foreach($courts as $court){
             $currentMonth = Carbon::now()->month;
             $currentYear = Carbon::now()->year;
-            $count = DB::table('slot_books')->where('courtID',$court->courtID)
+            $count = DB::table('slot_books')
+            ->where('courtID',$court->courtID)
             ->whereYear('date', $currentYear)
             ->whereMonth('date', $currentMonth)
             ->count();
@@ -56,12 +57,27 @@ class HomeController extends Controller
         }
 
     }
+    private function assignRank($courtID){
+        if($count>=15){
+            return 'A';
+        }elseif($count<15 && $count>=10){
+            return 'B';
+
+        }elseif($count<10 && $count>=5){
+            return 'C';
+        }else{
+            return 'D';
+        }
+
+    }
+
     public function bookSlots(Request $request,$courtID){
         
         $date =$request->date;
         if(!$date){
             $date = date('Y-m-d');
         }
+        $carbonDate = Carbon::parse($date);
         $court= Court::where('courtID',$courtID)->first();
         $startTime = $court->startTime;
         $endTime = $court->endTime;
@@ -69,6 +85,8 @@ class HomeController extends Controller
         $bookedSlots= DB::table('slot_books')
         ->where('courtID',$courtID)
         ->where('date',$date)->pluck('time')->toArray();
+
+        
         return view('slotView',compact('court','date','startTime','endTime','bookedSlots'));
     }
     public function bookSlotsProcessView(Request $request){
@@ -78,7 +96,19 @@ class HomeController extends Controller
         $userID = session('userID');
         $court= Court::where('courtID',$courtID)->first();
 
-        return view('bookSlotsProcessView',compact('courtID','date','time','userID','court'));
+        $carbonDate = Carbon::parse($date);
+        $bookedCounts = DB::table('slot_books')
+        ->where('courtID', $court->courtID)
+        ->whereYear('date', $carbonDate->year)
+        ->whereMonth('date', $carbonDate->month) 
+        ->count();
+
+        $message =null;
+        if($bookedCounts > $court->maxLimits){
+            $message ="This courts has maximum booking limits exceed for this month";
+        }
+
+        return view('bookSlotsProcessView',compact('courtID','date','time','userID','court','message'));
 
     }
     public function bookSlotsProcess(request $request){

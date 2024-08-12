@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->time('startTime'); 
             $table->time('endTime');
+            $table->integer('maxLimits');
             $table->timestamps();
         });
     }

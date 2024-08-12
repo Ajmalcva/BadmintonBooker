@@ -23,7 +23,9 @@ class CourtFactory extends Factory
             'location' => $this->faker->address, 
             'image' => $this->faker->imageUrl(640, 480, 'sports', true), 
             'startTime' => $this->randomTimeBetween('06:00:00', '08:00:00'),
-            'endTime' => $this->randomTimeBetween('22:00:00', '24:00:00')
+            'endTime' => $this->randomTimeBetween('22:00:00', '24:00:00'),
+            'maxLimits' => rand(40, 60)
+
         ];
     }
     protected function randomTimeBetween($start, $end): string

@@ -11,7 +11,7 @@
                 <div class="col-md-4">COURT NAME</div>
                 <div class="col-md-4">
                     <input type="text"  value="{{$court->name ?? ''}}" class="form-control" readonly>
-                    <input type="text" name="courtID" value="{{$courtID}}" class="form-control" readonly>
+                    <input type="hidden" name="courtID" value="{{$courtID}}" class="form-control" readonly>
                 </div>
             </div>
             <div class="row p-4 d-flex justify-content-center">
@@ -34,7 +34,11 @@
             <div class="row p-4 d-flex justify-content-center">
                 <div class="col-md-6"></div>
                 <div class="col-md-4">
+                    @if($message)
+                    <span>{{$message}}</span>
+                    @else
                     <input type="submit" value="BOOK" class="btn btn-danger">
+                    @endif
                 </div>
             </div>
         </form>
